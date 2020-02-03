@@ -1,8 +1,8 @@
 module.exports = {
     dialect: 'postgres',
-    host: localhost, //"192.168.99.100",
+    host: 'localhost', //"192.168.99.100",
     username: 'postgres',
-    password: 'fastfeet',
+    password: 'docker',
     database: 'fastfeet',
     define: {
         timestamps: true,
