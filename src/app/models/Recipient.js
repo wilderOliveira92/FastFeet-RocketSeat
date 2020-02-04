@@ -14,9 +14,12 @@ class Recipient extends Model {
             },
             {
                 sequelize,
+                tableName: 'recipient',
             }
         );
 
         return this;
     }
 }
+
+export default Recipient;
