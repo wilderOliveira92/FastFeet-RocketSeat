@@ -80,7 +80,7 @@ class RecipientController {
             cep,
         } = await recipient.update(req.body);
 
-        res.json({
+        return res.json({
             name,
             rua,
             numero,
@@ -91,9 +91,9 @@ class RecipientController {
         });
     }
 
-    async delete(req, res) {}
+    async delete(req, res) { }
 
-    async index(req, res) {}
+    async index(req, res) { }
 }
 
 export default new RecipientController();
