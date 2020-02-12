@@ -1,4 +1,5 @@
 import Deliveryman from '../models/Deliveryman';
+import File from '../models/File';
 import * as Yup from 'yup';
 
 class DeliverymanController {
@@ -31,15 +32,62 @@ class DeliverymanController {
 
     async index(req, res) {
 
-        const deliverys = await Deliveryman.findAll();
+        const deliverys = await Deliveryman.findAll({
+            include: [
+                {
+                    model: File,
+                    as: 'avatar',
+                    attributes: ['id', 'path', 'url']
+                }
+            ]
+        });
 
         return res.json(deliverys);
 
     }
 
-    async update(req, res) { }
+    async update(req, res) {
 
-    async delete(req, res) { }
+        const schema = Yup.object().shape({
+            name: Yup.string().required(),
+            email: Yup.string().email().required(),
+        })
+
+        if (!(await schema.isValid(req.body))) {
+            return res.status(400).json({ error: 'Validation fails.' })
+        }
+
+        const deliveryman = await Deliveryman.findByPk(req.params.id);
+
+        if (!deliveryman) {
+            return res.status(400).json({ error: 'Deliveryman not found.' })
+        }
+
+        const { id, name, email, avatar_id } = await deliveryman.update(req.body);
+        return res.json({ id, name, email, avatar_id });
+
+
+    }
+
+    async delete(req, res) {
+        const schema = Yup.object().shape({
+            name: Yup.string().required(),
+            email: Yup.string().email().required(),
+        })
+
+        if (!(await schema.isValid(req.body))) {
+            return res.status(400).json({ error: 'Validation fails.' })
+        }
+
+        const deliveryman = await Deliveryman.findByPk(req.params.id);
+
+        if (!deliveryman) {
+            return res.status(400).json({ error: 'Deliveryman not found.' })
+        }
+
+        const { id, name, email, avatar_id } = await deliveryman.delete(req.body);
+        return res.json({ id, name, email, avatar_id });
+    }
 }
 
 export default new DeliverymanController();
