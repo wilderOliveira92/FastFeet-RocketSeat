@@ -1,6 +1,9 @@
 import Order from '../models/Order';
 import Recipient from '../models/Recipient';
 import Deliveryman from '../models/Deliveryman';
+import OrderMail from '../jobs/OrderMail';
+
+
 import * as Yup from 'yup';
 
 class OrderController {
@@ -34,6 +37,8 @@ class OrderController {
 
         const { id, recipient_id, deliveryman_id, product } = await Order.create(req.body);
 
+        //await OrderMail.handle({})
+
         return res.json({
             id, recipient_id, deliveryman_id, product
         });
@@ -50,7 +55,7 @@ class OrderController {
                 {
                     model: Recipient,
                     as: 'recipient',
-                    attributes: ['id,', 'name', 'rua']
+                    attributes: ['id', 'name', 'rua']
                 },
                 {
                     model: Deliveryman,
@@ -64,9 +69,12 @@ class OrderController {
             return res.status(400).json({ error: 'Order not found.' })
         }
 
-        const { id, } = order;
+        const { id, recipient, deliveryman, product, canceled_at, start_date, end_date } = order;
 
-        return res.json();
+        return res.json({
+            order
+        });
+
     }
 
     async update(req, res) {
