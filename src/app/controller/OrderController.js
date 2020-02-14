@@ -3,8 +3,12 @@ import Recipient from '../models/Recipient';
 import Deliveryman from '../models/Deliveryman';
 import OrderMail from '../jobs/OrderMail';
 
+import Queue from '../../lib/queue';
 
 import * as Yup from 'yup';
+
+import { startOfHour, parseISO, isBefore, format, subHours, isAfter } from "date-fns";
+import pt from "date-fns/locale/pt";
 
 class OrderController {
     async store(req, res) {
@@ -37,7 +41,25 @@ class OrderController {
 
         const { id, recipient_id, deliveryman_id, product } = await Order.create(req.body);
 
-        //await OrderMail.handle({})
+        const order = await Order.findAll({
+            where: { id },
+            include: [
+                {
+                    model: Recipient,
+                    as: 'recipient',
+                    attributes: ['id', 'name', 'rua']
+                },
+                {
+                    model: Deliveryman,
+                    as: 'deliveryman',
+                    attributes: ['id', 'name']
+                }
+            ]
+        })
+
+        await Queue.add(OrderMail.key, {
+            order
+        });
 
         return res.json({
             id, recipient_id, deliveryman_id, product
@@ -78,11 +100,56 @@ class OrderController {
     }
 
     async update(req, res) {
-        return res.json();
+
+        const schema = Yup.object().shape({
+            recipient_id: Yup.number(),
+            product: Yup.string().required(),
+            canceled_at: Yup.date(),
+            start_date: Yup.date(),
+            end_date: Yup.date()
+        });
+
+        if (!(await schema.isValid(req.body))) {
+            return res.status(400).json({ error: 'Validation fails.' })
+        }
+
+        const order = await Order.findByPk(req.params.id);
+
+        if (!order) {
+            return res.status(400).json({ error: 'Order not exists.' })
+        }
+
+        const { start_date } = req.body;
+
+
+        if (start_date != null) {
+            const hourStart = startOfHour(parseISO(start_date))
+
+            if (isAfter(hourStart, '08:00') || isBefore(hourStart, '18:00')) {
+                return res.status(400).json({ error: 'Informed hour not allowed.' })
+            }
+
+        }
+
+        const { id, recipient_id, deliveryman_id, product, canceled_at, end_date } = await order.update(req.body);
+
+        return res.json({
+            id, recipient_id, deliveryman_id, product, canceled_at, end_date, start_date
+        });
     }
 
     async delete(req, res) {
-        return res.json();
+
+        const order = await Order.findByPk(req.params.id);
+
+        if (!order) {
+            return res.status(400).json({ error: 'Order not exists.' })
+        }
+
+        order.canceled_at = new Date();
+        order.save();
+
+        return res.json(order);
     }
 }
 

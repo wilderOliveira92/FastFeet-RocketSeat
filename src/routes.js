@@ -34,6 +34,8 @@ routes.post('/files/avatar', upload.single("file"), FileController.store);
 //order
 routes.post('/order', OrderController.store);
 routes.get('/order/:id', OrderController.index);
+routes.put('/order/:id', OrderController.update);
+routes.delete('/order/:id', OrderController.delete);
 routes.post('/files/signature', upload.single("file"), SignatureController.store);
 
 export default routes;

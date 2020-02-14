@@ -12,8 +12,8 @@ class OrderMail {
         const { order } = data;
 
         await Mail.sendEmail({
-            to: ``,
-            subject: '',
+            to: `${order.deliveryman.name} <${order.deliveryman.email}>`,
+            subject: 'Nova encomenda',
             template: 'newOrder',
             context: {
                 deliveryman: order.deliveryman.name,
