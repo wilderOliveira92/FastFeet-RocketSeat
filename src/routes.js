@@ -9,6 +9,7 @@ import FileController from './app/controller/FileController';
 import SignatureController from './app/controller/SignatureController';
 import OrderController from './app/controller/OrderController';
 import DeliveriesController from './app/controller/DeliveriesController';
+import DeliveryProblemsController from './app/controller/DeliveryProblemsController';
 
 import authMiddlewares from './app/middlewares/auth';
 
@@ -23,9 +24,17 @@ function deliveries(req, res, next) {
 
 routes.post('/auth', SessionController.store);
 
+//deliveries
 routes.get('/deliveryman/:id', DeliveriesController.index);
 routes.get('/deliveryman/:id/deliveries', deliveries, DeliveriesController.index);
 routes.put('/deliveryman/:id/deliveries/:order_id', DeliveriesController.update);
+
+//delivery problems
+routes.get('/delivery/:id/problems', DeliveryProblemsController.index);
+routes.post('/delivery/:id/problems', DeliveryProblemsController.store);
+routes.delete('/problem/:id/canceldelivery', DeliveryProblemsController.delete);
+
+
 
 routes.use(authMiddlewares);
 

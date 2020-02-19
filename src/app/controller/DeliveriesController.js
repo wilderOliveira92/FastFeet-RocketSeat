@@ -1,6 +1,6 @@
 import { Op } from 'sequelize';
 import * as Yup from 'yup';
-
+import { isBefore, parseISO, startOfHour, isAfter, startOfDay, endOfDay } from 'date-fns'
 
 import Order from '../models/Order'
 import Deliveryman from '../models/Deliveryman'
@@ -57,15 +57,14 @@ class DeliveriesController {
             return res.status(400).json({ error: 'Validation fails.' })
         }
 
-        const deliveryman = await Deliveryman.findByPk(id);
+        const deliveryman = await Deliveryman.findByPk(req.params.id);
 
         if (!deliveryman) {
             return res.json({ error: 'Deliveryman not found.' })
         }
 
-        const order = await Order.findByPk({
+        const order = await Order.findByPk(req.params.order_id, {
             where: {
-                id: req.order_id,
                 canceled_at: null
             }
         })
@@ -74,9 +73,40 @@ class DeliveriesController {
             return res.json({ error: 'Order not fount or canceled.' })
         }
 
-        await order.update(re.body);
-        order.save();
+        const minHourStart = parseISO('08:00');
+        const maxHourStart = parseISO('18:00');
 
+        const { start_date, end_date } = req.body;
+
+        if (start_date) {
+            const dateStart = parseISO(start_date)
+            if (isBefore(dateStart, new Date()) || isAfter(startOfDay(dateStart), startOfDay(new Date()))) {
+                return res.status(401).json({ error: 'Date is not avalable.' })
+            }
+
+            const hourStart = startOfHour(dateStart);
+
+            if (isBefore(hourStart, minHourStart) || isAfter(hourStart, maxHourStart)) {
+                return res.status(401).json({ error: 'Hour not avalable.' })
+            }
+
+            const countOrders = await Order.findAndCountAll({
+                where: {
+                    id: req.params.order_id,
+                    start_date: {
+                        [Op.between]: [startOfDay(dateStart), endOfDay(dateStart)]
+                    }
+                }
+            });
+
+            if (countOrders && countOrders.count >= 5) {
+                return res.status(401).json({ error: "Deliveryman cannot pick up more than 5 orders." })
+            }
+
+        }
+
+
+        await order.update(req.body);
         return res.json(order)
 
     }
