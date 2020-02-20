@@ -10,14 +10,15 @@ class OrderMail {
 
     async handle({ data }) {
         const { order } = data;
-
+        console.log('handle', order)
         await Mail.sendEmail({
-            to: `${order.deliveryman.name} <${order.deliveryman.email}>`,
+            //to: `${order.deliveryman.name} <${order.deliveryman.email}>`,
+            to: 'teste <teste@gmail.com>',
             subject: 'Nova encomenda',
             template: 'newOrder',
             context: {
-                deliveryman: order.deliveryman.name,
-                recipient: order.recipient.name,
+                deliveryman: 'order.deliveryman.name',
+                recipient: 'order.recipient.name',
                 rua: 'teste',
                 date: format(new Date(), "'dia' dd 'de' MMMM', às ' H:mm'h'", { locale: pt })
 

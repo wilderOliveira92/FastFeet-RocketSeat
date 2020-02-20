@@ -11,7 +11,6 @@ export default {
     }
 };
 
-
 /*
      MAIL_HOST=smtp.mailtrap.io
     MAIL_PORT=2525

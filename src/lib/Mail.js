@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
-import nodemailerhbs from 'nodemailer-express-handlebars';
 import exphbs from 'express-handlebars';
+import nodemailerhbs from 'nodemailer-express-handlebars';
 
 import mailConfig from '../config/mail';
 import { resolve } from 'path';
@@ -34,7 +34,7 @@ class Mail {
                     extname: '.hbs'
                 }),
                 viewPath,
-                extname: '.hbs'
+                extName: '.hbs'
             })
         );
 

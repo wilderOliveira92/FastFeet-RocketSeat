@@ -4,6 +4,7 @@ import Deliveryman from '../models/Deliveryman';
 import OrderMail from '../jobs/OrderMail';
 
 import Queue from '../../lib/queue';
+import Mail from '../../lib/Mail';
 
 import * as Yup from 'yup';
 
@@ -52,15 +53,30 @@ class OrderController {
                 {
                     model: Deliveryman,
                     as: 'deliveryman',
-                    attributes: ['id', 'name']
+                    attributes: ['id', 'name', 'email']
                 }
             ]
         })
+
 
         await Queue.add(OrderMail.key, {
             order
         });
 
+        /*
+                await Mail.sendEmail({
+                    to: `teste <wilder@teste.com>`,
+                    subject: 'Nova encomenda',
+                    template: 'newOrder',
+                    context: {
+                        deliveryman: 'teste',
+                        recipient: 'teste2',
+                        date: '22/02/2020',
+                        rua: 'teste'
+
+                    }
+                });
+        */
         return res.json({
             id, recipient_id, deliveryman_id, product
         });
@@ -69,7 +85,7 @@ class OrderController {
 
     async index(req, res) {
 
-        const order = await Order.findAll({
+        const order = await Order.finddAll({
             where: {
                 id: req.params.id
             },
