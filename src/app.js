@@ -19,7 +19,7 @@ class App {
 
         this.middlewares();
         this.routes();
-        //this.exceptionHandler();
+        this.exceptionHandler();
     }
 
     middlewares() {
@@ -29,7 +29,6 @@ class App {
 
     routes() {
         this.server.use(routes);
-        this.server.use(Sentry.Handlers.errorHandler());
     }
 
     exceptionHandler() {

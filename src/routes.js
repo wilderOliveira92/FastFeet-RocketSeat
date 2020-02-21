@@ -27,7 +27,7 @@ routes.post('/auth', SessionController.store);
 //deliveries
 routes.get('/deliveryman/:id', DeliveriesController.index);
 routes.get('/deliveryman/:id/deliveries', deliveries, DeliveriesController.index);
-routes.put('/deliveryman/:id/deliveries/:order_id', DeliveriesController.update);
+routes.put('/deliveryman/:id/deliveries/:order_id', upload.single("file"), DeliveriesController.update);
 
 //delivery problems
 routes.get('/delivery/:id/problems', DeliveryProblemsController.index);

@@ -85,9 +85,9 @@ class OrderController {
 
     async index(req, res) {
 
-        const order = await Order.finddAll({
+        const order = await Order.findAll({
             where: {
-                id: req.params.id
+                id: req.params.id1
             },
             include: [
                 {

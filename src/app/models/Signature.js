@@ -15,6 +15,7 @@ class Signature extends Model {
             },
             {
                 sequelize,
+                tableName: 'signature',
             }
         );
 

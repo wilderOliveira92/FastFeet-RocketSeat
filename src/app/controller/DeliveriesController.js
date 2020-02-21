@@ -4,6 +4,7 @@ import { isBefore, parseISO, startOfHour, isAfter, startOfDay, endOfDay } from '
 
 import Order from '../models/Order'
 import Deliveryman from '../models/Deliveryman'
+import Signature from '../models/Signature';
 
 
 class DeliveriesController {
@@ -53,7 +54,7 @@ class DeliveriesController {
             end_date: Yup.date(),
         })
 
-        if (!(await schema.isValid(req.body))) {
+        if (!(await schema.isValid(req.query))) {
             return res.status(400).json({ error: 'Validation fails.' })
         }
 
@@ -76,7 +77,7 @@ class DeliveriesController {
         const minHourStart = parseISO('08:00');
         const maxHourStart = parseISO('18:00');
 
-        const { start_date, end_date } = req.body;
+        const { start_date, end_date } = req.query;
 
         if (start_date) {
             const dateStart = parseISO(start_date)
@@ -103,10 +104,30 @@ class DeliveriesController {
                 return res.status(401).json({ error: "Deliveryman cannot pick up more than 5 orders." })
             }
 
+            await order.update({
+                start_date
+            });
+
         }
 
 
-        await order.update(req.body);
+        if (end_date) {
+
+            console.log('aqui')
+            const { originalname: name, filename: path } = req.file;
+            const file = await Signature.create({
+                name,
+                path,
+            });
+            console.log('file', file)
+            await order.update({
+                end_date,
+                signature_id: file.id
+            });
+        }
+
+
+
         return res.json(order)
 
     }
